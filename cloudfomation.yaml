@@ -149,7 +149,7 @@ Resources:
             commit_id = response['pipelineExecution']['artifactRevisions'][0]['revisionId']
             repo_id = response['pipelineExecution']['artifactRevisions'][0]['revisionUrl'].split("FullRepositoryId=")[1].split("&")[0]
 
-            if integration_type == "BitBucket":
+            if integration_type == "Bitbucket":
               #Based on https://developer.atlassian.com/server/bitbucket/how-tos/updating-build-status-for-commits/
               if data['detail']['state'].upper() in [ "SUCCEEDED" ]:
                 state = "SUCCESSFUL"
