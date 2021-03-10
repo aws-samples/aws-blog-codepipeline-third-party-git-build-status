@@ -4,19 +4,19 @@ Parameters:
   IntegrationType:
     Type: String
     AllowedValues:
-      - "BitBucket"
+      - "Bitbucket"
       - "GitHub"
-    Description: Enter BitBucket or GitHub
+    Description: Enter Bitbucket or GitHub
   IntegrationUser:
     NoEcho: true
     Type: String
     MinLength: 1
-    Description: Enter BitBucket or GitHub API username
+    Description: Enter Bitbucket or GitHub API username
   IntegrationPass:
     NoEcho: true
     Type: String
     MinLength: 1
-    Description: Enter BitBucket or GitHub API password
+    Description: Enter Bitbucket or GitHub API password
   PipelineName:
     Type: String
     MinLength: 1
