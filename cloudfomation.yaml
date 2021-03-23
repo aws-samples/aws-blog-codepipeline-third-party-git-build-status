@@ -136,7 +136,7 @@ Resources:
             print (data)
 
             #Push only notifications about Pipeline Execution State Changes
-            if data['detailType'] != "CodePipeline Pipeline Execution State Change":
+            if data.get(detailType) != "CodePipeline Pipeline Execution State Change":
               return()
 
             response = codepipeline_client.get_pipeline_execution(
