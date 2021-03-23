@@ -140,14 +140,19 @@ Resources:
               return()
 
             response = codepipeline_client.get_pipeline_execution(
-            pipelineName=data['detail']['pipeline'],
-            pipelineExecutionId=data['detail']['execution-id']
+              pipelineName=data['detail']['pipeline'],
+              pipelineExecutionId=data['detail']['execution-id']
             )
 
             print(response)
             short_commit_od = response['pipelineExecution']['artifactRevisions'][0]['revisionId'][0:7]
             commit_id = response['pipelineExecution']['artifactRevisions'][0]['revisionId']
-            repo_id = response['pipelineExecution']['artifactRevisions'][0]['revisionUrl'].split("FullRepositoryId=")[1].split("&")[0]
+
+            if "FullRepositoryId=" in response['pipelineExecution']['artifactRevisions'][0]['revisionUrl']:
+              repo_id = revisionUrl.split("FullRepositoryId=")[1].split("&")[0]
+            else: #gitbub v1 integration
+              repo_id = revisionUrl.split("/")[3] + "/" + revisionUrl.split("/")[4]
+
 
             if integration_type == "Bitbucket":
               #Based on https://developer.atlassian.com/server/bitbucket/how-tos/updating-build-status-for-commits/
