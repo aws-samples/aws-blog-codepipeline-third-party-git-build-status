@@ -136,24 +136,30 @@ Resources:
             print (data)
 
             #Push only notifications about Pipeline Execution State Changes
-            if data['detailType'] != "CodePipeline Pipeline Execution State Change":
+            if data.get("detailType") != "CodePipeline Pipeline Execution State Change":
               return()
 
             response = codepipeline_client.get_pipeline_execution(
-            pipelineName=data['detail']['pipeline'],
-            pipelineExecutionId=data['detail']['execution-id']
+              pipelineName=data['detail']['pipeline'],
+              pipelineExecutionId=data['detail']['execution-id']
             )
 
             print(response)
             short_commit_od = response['pipelineExecution']['artifactRevisions'][0]['revisionId'][0:7]
             commit_id = response['pipelineExecution']['artifactRevisions'][0]['revisionId']
-            repo_id = response['pipelineExecution']['artifactRevisions'][0]['revisionUrl'].split("FullRepositoryId=")[1].split("&")[0]
+            revision_url = response['pipelineExecution']['artifactRevisions'][0]['revisionUrl']
+
+            if "FullRepositoryId=" in revision_url:
+              repo_id = revision_url.split("FullRepositoryId=")[1].split("&")[0]
+            else: #gitbub v1 integration
+              repo_id = revision_url.split("/")[3] + "/" + revisionUrl.split("/")[4]
+
 
             if integration_type == "Bitbucket":
               #Based on https://developer.atlassian.com/server/bitbucket/how-tos/updating-build-status-for-commits/
               if data['detail']['state'].upper() in [ "SUCCEEDED" ]:
                 state = "SUCCESSFUL"
-              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED" ]:
+              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED", "SUPERSEDED" ]:
                 state = "INPROGRESS"
               else:
                 state = "FAILED"
@@ -170,7 +176,7 @@ Resources:
               #Based on https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#statuses
               if data['detail']['state'].upper() in [ "SUCCEEDED" ]:
                 state = "success"
-              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED" ]:
+              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED", "SUPERSEDED" ]:
                 state = "pending"
               else:
                 state = "error"
@@ -179,7 +185,8 @@ Resources:
 
               build_status={}
               build_status['state'] = state
-              build_status['description'] = "CodePipeline" + data['detail']['pipeline']
+              build_status['context'] = "CodePipeline"
+              build_status['description'] = data['detail']['pipeline']
               build_status['target_url'] = "https://" + region + ".console.aws.amazon.com/codesuite/codepipeline/pipelines/" + data['detail']['pipeline'] + "/executions/" + data['detail']['execution-id'] + "?region="+region
 
             else:
