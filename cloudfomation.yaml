@@ -136,7 +136,7 @@ Resources:
             print (data)
 
             #Push only notifications about Pipeline Execution State Changes
-            if data.get(detailType) != "CodePipeline Pipeline Execution State Change":
+            if data.get("detailType") != "CodePipeline Pipeline Execution State Change":
               return()
 
             response = codepipeline_client.get_pipeline_execution(
@@ -147,11 +147,12 @@ Resources:
             print(response)
             short_commit_od = response['pipelineExecution']['artifactRevisions'][0]['revisionId'][0:7]
             commit_id = response['pipelineExecution']['artifactRevisions'][0]['revisionId']
+            revision_url = response['pipelineExecution']['artifactRevisions'][0]['revisionUrl']
 
-            if "FullRepositoryId=" in response['pipelineExecution']['artifactRevisions'][0]['revisionUrl']:
-              repo_id = revisionUrl.split("FullRepositoryId=")[1].split("&")[0]
+            if "FullRepositoryId=" in revision_url:
+              repo_id = revision_url.split("FullRepositoryId=")[1].split("&")[0]
             else: #gitbub v1 integration
-              repo_id = revisionUrl.split("/")[3] + "/" + revisionUrl.split("/")[4]
+              repo_id = revision_url.split("/")[3] + "/" + revisionUrl.split("/")[4]
 
 
             if integration_type == "Bitbucket":
