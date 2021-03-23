@@ -153,7 +153,7 @@ Resources:
               #Based on https://developer.atlassian.com/server/bitbucket/how-tos/updating-build-status-for-commits/
               if data['detail']['state'].upper() in [ "SUCCEEDED" ]:
                 state = "SUCCESSFUL"
-              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED" ]:
+              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED", "SUPERSEDED" ]:
                 state = "INPROGRESS"
               else:
                 state = "FAILED"
@@ -170,7 +170,7 @@ Resources:
               #Based on https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#statuses
               if data['detail']['state'].upper() in [ "SUCCEEDED" ]:
                 state = "success"
-              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED" ]:
+              elif data['detail']['state'].upper() in [ "STARTED", "STOPPING", "STOPPED", "SUPERSEDED" ]:
                 state = "pending"
               else:
                 state = "error"
