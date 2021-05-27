@@ -27,6 +27,7 @@ Resources:
   PipelineNotificationSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
+      KmsMasterKeyId: "alias/aws/sns"
       Subscription:
         - Endpoint: !GetAtt PipelineNotificationFunction.Arn
           Protocol: "lambda"
