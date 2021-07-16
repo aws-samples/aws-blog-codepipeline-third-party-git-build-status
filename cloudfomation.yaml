@@ -21,13 +21,69 @@ Parameters:
     Type: String
     MinLength: 1
     Description: Name of CodePipeline pipeline
-
-
+  EncryptionAtRest:
+    Type: String
+    Default: "No"
+    AllowedValues: 
+      - "Yes"
+      - "No"
+    Description: Enable encryption at rest for SNS topic
+Conditions:
+  UseCMK: !Equals
+    - !Ref EncryptionAtRest
+    - "Yes"
 Resources:
+  SNSTopicEncryptionKey:
+    Type: AWS::KMS::Key
+    Condition: UseCMK
+    Properties:
+      Description: !Sub "CMK for SNS Topic for encryption at rest in ${AWS::StackName}"
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+          Action: kms:*
+          Resource: '*'
+        - Sid: Allow administration of the key
+          Effect: Allow
+          Principal:
+            AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Admin'
+          Action:
+          - kms:Create*
+          - kms:Describe*
+          - kms:Enable*
+          - kms:List*
+          - kms:Put*
+          - kms:Update*
+          - kms:Revoke*
+          - kms:Disable*
+          - kms:Get*
+          - kms:Delete*
+          - kms:ScheduleKeyDeletion
+          - kms:CancelKeyDeletion
+          Resource: '*'
+        - Sid: Allow codestar
+          Effect: Allow
+          Principal:
+            Service: "codestar-notifications.amazonaws.com"
+          Action:
+            - kms:GenerateDataKey*
+            - kms:Decrypt
+          Resource: "*"
+          Condition:
+            StringEquals:
+              "kms:ViaService": !Sub 'sns.${AWS::Region}.amazonaws.com'
   PipelineNotificationSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
-      KmsMasterKeyId: "alias/aws/sns"
+      KmsMasterKeyId:
+        Fn::If:
+        - UseCMK
+        - !Ref SNSTopicEncryptionKey
+        - !Ref AWS::NoValue
       Subscription:
         - Endpoint: !GetAtt PipelineNotificationFunction.Arn
           Protocol: "lambda"
