@@ -23,7 +23,7 @@ Parameters:
     Description: Name of CodePipeline pipeline
   EncryptionAtRest:
     Type: String
-    Default: "No"
+    Default: "Yes"
     AllowedValues: 
       - "Yes"
       - "No"
