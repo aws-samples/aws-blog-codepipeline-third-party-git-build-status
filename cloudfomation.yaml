@@ -133,7 +133,7 @@ Resources:
   PipelineNotificationRule:
     Type: 'AWS::CodeStarNotifications::NotificationRule'
     Properties:
-      Name: !Sub 'Notification for ${PipelineName} ${AWS::StackName}'
+      Name: !Sub 'Notification for ${PipelineName}'
       DetailType: FULL
       Resource: !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineName}'
       EventTypeIds:
@@ -209,7 +209,7 @@ Resources:
             if "FullRepositoryId=" in revision_url:
               repo_id = revision_url.split("FullRepositoryId=")[1].split("&")[0]
             else: #gitbub v1 integration
-              repo_id = revision_url.split("/")[3] + "/" + revisionUrl.split("/")[4]
+              repo_id = revision_url.split("/")[3] + "/" + revision_url.split("/")[4]
 
 
             if integration_type == "Bitbucket":
